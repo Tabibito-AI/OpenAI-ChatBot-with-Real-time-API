@@ -48,6 +48,8 @@ class AIChatBot:
             message["content_type"] = "image_url"
         elif input_type == "audio":
             message["content_type"] = "audio"
+        elif input_type == "screen":
+            message["content_type"] = "screen_capture"
         self.conversation_history.append(message)
 
         try:
@@ -172,9 +174,51 @@ class AIChatBot:
             cap.release()
             cv2.destroyAllWindows()
 
+    async def process_screen_capture(self):
+        print("Screen capture started. Type 'quit' to stop.")
+        sct = mss.mss()
+
+        try:
+            while True:
+                user_input = input("> ")
+                if user_input.lower() == 'quit':
+                    break
+
+                screenshot = sct.grab(sct.monitors[1])
+                img = np.array(screenshot)
+                _, buffer = cv2.imencode('.jpg', img)
+                screen_base64 = base64.b64encode(buffer).decode('utf-8')
+                await self.send_message(screen_base64, input_type="screen")
+        except Exception as e:
+            print(f"Error processing screen capture: {e}")
+
+    async def process_text_input(self):
+        print("Text input started. Type 'quit' to stop.")
+
+        try:
+            while True:
+                user_input = input("> ")
+                if user_input.lower() == 'quit':
+                    break
+                await self.send_message(user_input, input_type="text")
+        except Exception as e:
+            print(f"Error processing text input: {e}")
+
 async def main():
     chatbot = AIChatBot()
-    await chatbot.process_realtime_audio()
+    print("Select input type: 1) Audio 2) Camera 3) Screen 4) Text")
+    input_type = input("> ")
+
+    if input_type == '1':
+        await chatbot.process_realtime_audio()
+    elif input_type == '2':
+        await chatbot.process_camera_frames()
+    elif input_type == '3':
+        await chatbot.process_screen_capture()
+    elif input_type == '4':
+        await chatbot.process_text_input()
+    else:
+        print("Invalid input type selected.")
 
 if __name__ == "__main__":
     asyncio.run(main())
