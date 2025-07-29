@@ -34,7 +34,7 @@ tts_engine = pyttsx3.init()
 
 # 新しい言語モデルのエンドポイントと設定
 NEW_MODEL_API_URL = "https://api.openai.com/v1/realtime"
-NEW_MODEL_NAME = "gpt-4o-realtime-preview-2024-12-17"
+NEW_MODEL_NAME = "gpt-4o-realtime-preview-2025-06-03"
 
 class AIChatBot:
     def __init__(self):
